@@ -1,108 +1,32 @@
-// Calificaciones en diferentes idiomas
-const ratings = {
-  'es': ["Básico", "Regular", "Correcto", "Bueno", "Excelente"],
-  'ca': ["Bàsic", "Regular", "Correcte", "Bo", "Excel·lent"],
-  'en': ["Basic", "Fair", "Good", "Very Good", "Excellent"]
-};
+// Calificaciones de puntuación
+const ratings = ["Básico", "Regular", "Correcto", "Bueno", "Excelente"];
 
-// Traducciones
-const translations = {
-  'es': {
-    'title': 'Selección de chatbots gratuitos',
-    'assign_importance': 'Asignar importancia',
-    'reset': '↺ Restaurar',
-    'results': 'Resultados',
-    'note': 'Nota: Esta calificación es subjetiva y puede variar según las necesidades específicas de cada usuario.',
-    'question': '¿Qué IA me conviene? Comparativa de chatbots',
-    'features': [
-      "Con personalización de las respuestas",
-      "Generación de imágenes",
-      "Generación de video",
-      "Intérprete de código",
-      "Compartir públicamente conversaciones completas",
-      "Subir documentos de texto",
-      "Puede ver las imágenes de los PDF",
-      "Cálculos matemáticos exactos mediante programación",
-      "Con modo de razonamiento",
-      "Con búsqueda profunda",
-      "Con chat privado (incógnito)",
-      "Creación de agentes (espacios de trabajo)",
-      "Con canvas (lienzo)",
-      "Conexión con otros servicios (Google Drive, Dropbox, etc.)",
-      "Versión CLI (consola o terminal)",
-      "Edad mínima de uso"
-    ]
-  },
-  'ca': {
-    'title': 'Selecció de chatbots gratuïts',
-    'assign_importance': 'Assignar importància',
-    'reset': '↺ Restaurar',
-    'results': 'Resultats',
-    'note': 'Nota: Aquesta qualificació és subjectiva i pot variar segons les necessitats específiques de cada usuari.',
-    'question': 'Quina IA em convé? Comparativa de chatbots',
-    'features': [
-      "Amb personalització de les respostes",
-      "Generació d'imatges",
-      "Generació de vídeo",
-      "Intèrpret de codi",
-      "Compartir públicament converses completes",
-      "Pujar documents de text",
-      "Pot veure les imatges dels PDF",
-      "Càlculs matemàtics exactes mitjançant programació",
-      "Amb mode de raonament",
-      "Amb cerca profunda",
-      "Amb xat privat (incògnit)",
-      "Creació d'agents (espais de treball)",
-      "Amb canvas (llenç)",
-      "Connexió amb altres serveis (Google Drive, Dropbox, etc.)",
-      "Versió CLI (consola o terminal)",
-      "Edat mínima d'ús"
-    ]
-  },
-  'en': {
-    'title': 'Free chatbots selection',
-    'assign_importance': 'Assign importance',
-    'reset': '↺ Reset',
-    'results': 'Results',
-    'note': 'Note: This rating is subjective and may vary according to each user\'s specific needs.',
-    'question': 'Which AI suits me? Chatbot comparison',
-    'features': [
-      "With response customization",
-      "Image generation",
-      "Video generation",
-      "Code interpreter",
-      "Publicly share complete conversations",
-      "Upload text documents",
-      "Can view images in PDFs",
-      "Exact mathematical calculations through programming",
-      "With reasoning mode",
-      "With deep search",
-      "With private chat (incognito)",
-      "Creation of agents (workspaces)",
-      "With canvas",
-      "Connection with other services (Google Drive, Dropbox, etc.)",
-      "CLI version (console or terminal)",
-      "Minimum age for use"
-    ]
-  }
+// Textos de la interfaz (español - idioma de la hoja de cálculo)
+const texts = {
+  'title': 'Selección de chatbots gratuitos',
+  'assign_importance': 'Asignar importancia',
+  'reset': '↺ Restaurar',
+  'results': 'Resultados',
+  'note': 'Nota: Esta calificación es subjetiva y puede variar según las necesidades específicas de cada usuario.',
+  'question': '¿Qué IA me conviene? Comparativa de chatbots'
 };
 
 // Etiquetas para los deslizadores (rango 0..4)
-const sliderLabels = {
-  'es': ["Sin importancia", "Baja", "Media", "Alta", "Obligatorio"],
-  'ca': ["Sense importància", "Baixa", "Mitjana", "Alta", "Obligatori"],
-  'en': ["Not important", "Low", "Medium", "High", "Required"]
-};
+const sliderLabels = ["Sin importancia", "Baja", "Media", "Alta", "Obligatorio"];
 
 // Etiquetas para el deslizador de edad (rango 0..1)
-const ageSliderLabels = {
-  'es': ["Indiferente", "Menores"],
-  'ca': ["Indiferent", "Menors"],
-  'en': ["Indifferent", "Minors"]
-};
+const ageSliderLabels = ["Indiferente", "Menores"];
 
-// IAs en el orden de la tabla actualizada según CSV 22/08/2025
-const ias = [
+// URL del CSV de Google Sheets
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvMggc_JmnjwFTlG5K-6Q5Dtd9V_2Au9ScA5dSkilti8ptFGvpoiT_TbIC196juHZDR1112kZzbgwO/pub?output=csv";
+
+// Variables globales para datos dinámicos del CSV
+let ias = [];
+let capabilities = {};
+let csvFeatures = [];
+
+// Datos por defecto (fallback) - datos actuales del CSV 22/08/2025
+const fallbackIas = [
   "Gemini",
   "Grok", 
   "ChatGPT",
@@ -117,27 +41,7 @@ const ias = [
   "Lumo"
 ];
 
-/*
-  Índice de características actualizadas según CSV 22/08/2025:
-  0: Con personalización de las respuestas (0 o 1)
-  1: Generación de imágenes (0 o 1)
-  2: Generación de video (0 o 1)
-  3: Intérprete de código (0 o 1)
-  4: Compartir públicamente conversaciones completas (0 o 1)
-  5: Subir documentos de texto (0 o 1)
-  6: Puede ver las imágenes de los PDF (0 o 1)
-  7: Cálculos matemáticos exactos mediante programación (0 o 1)
-  8: Con modo de razonamiento (0 o 1)
-  9: Con búsqueda profunda (0 o 1)
-  10: Con chat privado (incógnito) (0 o 1)
-  11: Creación de agentes (espacios de trabajo) (0 o 1)
-  12: Con canvas (lienzo) (0 o 1)
-  13: Conexión con otros servicios (Google Drive, Dropbox, etc.) (0 o 1)
-  14: Versión CLI (consola o terminal) (0 o 1)
-  15: Edad mínima de uso
-*/
-
-const capabilities = {
+const fallbackCapabilities = {
   "Gemini":      [1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 14],
   "Grok":        [1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 13],
   "ChatGPT":     [1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 14],
@@ -152,13 +56,124 @@ const capabilities = {
   "Lumo":        [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 13]
 };
 
-// Detecta el idioma inicial del navegador
-let currentLang = navigator.language.substring(0,2);
-if (!['es', 'ca', 'en'].includes(currentLang)) currentLang = 'es';
+// Función para cargar datos desde CSV
+async function loadDataFromCSV() {
+  try {
+    const response = await fetch(CSV_URL);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const csvText = await response.text();
+    const lines = csvText.trim().split('\n');
+    
+    if (lines.length < 5) {
+      throw new Error('CSV no tiene suficientes datos (necesita al menos 5 filas)');
+    }
 
-// Inicialmente, los 14 primeros deslizadores a 2 (Media) y el de edad a 0 (Indiferente)
-let weights = Array(translations[currentLang].features.length).fill(2);
-weights[translations[currentLang].features.length - 1] = 0;
+    // Fila 3 (índice 2) contiene los nombres de los chatbots desde la columna C (índice 2)
+    const chatbotRow = lines[2].split(',').map(h => h.trim().replace(/"/g, ''));
+    ias = chatbotRow.slice(2).filter(name => name); // Desde columna C, filtrar nombres vacíos
+    
+    console.log('Chatbots encontrados:', ias);
+    
+    // Resetear datos globales
+    capabilities = {};
+    csvFeatures = [];
+    
+    // Primero recopilar todas las características válidas
+    const validRows = [];
+    for (let rowIndex = 3; rowIndex < lines.length; rowIndex++) {
+      const values = lines[rowIndex].split(',').map(v => v.trim().replace(/"/g, ''));
+      
+      if (values.length < 3) continue;
+      
+      const featureName = values[1];
+      if (!featureName || featureName.toLowerCase().includes('puntuación')) continue;
+      
+      validRows.push({ rowIndex, values, featureName });
+      csvFeatures.push(featureName);
+    }
+    
+    // Ahora procesar cada fila sabiendo cuál es la última
+    validRows.forEach((row, index) => {
+      const { values, featureName } = row;
+      const isLastFeature = (index === validRows.length - 1); // Última característica válida
+      
+      
+      // Datos desde columna C (índice 2) hacia la derecha
+      const featureData = values.slice(2);
+      
+      // Asignar datos a cada chatbot
+      ias.forEach((chatbot, chatbotIndex) => {
+        if (!capabilities[chatbot]) {
+          capabilities[chatbot] = [];
+        }
+        
+        // Convertir valor a número
+        let value = 0;
+        if (featureData[chatbotIndex]) {
+          const cellValue = featureData[chatbotIndex].trim().toLowerCase();
+          
+          if (isLastFeature) {
+            // Para edad: <18 = 1, >=18 = 0
+            const ageNum = parseFloat(featureData[chatbotIndex]);
+            value = (!isNaN(ageNum) && ageNum < 18) ? 1 : 0;
+          } else {
+            // Para otras características: Sí/No a 1/0
+            if (cellValue === 'sí' || cellValue === 'si' || cellValue === 'yes' || cellValue === '1') {
+              value = 1;
+            } else if (cellValue === 'no' || cellValue === '0') {
+              value = 0;
+            } else {
+              // Intentar conversión numérica directa
+              const num = parseFloat(featureData[chatbotIndex]);
+              value = isNaN(num) ? 0 : num;
+            }
+          }
+        }
+        
+        capabilities[chatbot].push(value);
+      });
+    });
+    
+    console.log('Datos cargados desde CSV:', { 
+      ias: ias.length, 
+      features: csvFeatures.length,
+      sampleCapabilities: capabilities[ias[0]]?.length || 0
+    });
+    
+    return true;
+    
+  } catch (error) {
+    console.warn('Error al cargar CSV, usando datos por defecto:', error);
+    // Usar datos fallback
+    ias = [...fallbackIas];
+    capabilities = { ...fallbackCapabilities };
+    csvFeatures = [
+      "Con personalización de las respuestas",
+      "Generación de imágenes", 
+      "Generación de video",
+      "Intérprete de código",
+      "Compartir públicamente conversaciones completas",
+      "Subir documentos de texto",
+      "Puede ver las imágenes de los PDF",
+      "Cálculos matemáticos exactos mediante programación",
+      "Con modo de razonamiento",
+      "Con búsqueda profunda",
+      "Con chat privado (incógnito)",
+      "Creación de agentes (espacios de trabajo)",
+      "Con canvas (lienzo)",
+      "Conexión con otros servicios (Google Drive, Dropbox, etc.)",
+      "Versión CLI (consola o terminal)",
+      "Edad mínima de uso"
+    ];
+    return false;
+  }
+}
+
+// Inicialmente, los deslizadores a 2 (Media) excepto el último (edad) a 0 (Indiferente)
+let weights = [];
 
 // Devuelve true si alguna característica obligatoria falla
 function failsMandatoryRequirement(iaCapabilities) {
@@ -170,15 +185,28 @@ function failsMandatoryRequirement(iaCapabilities) {
   return false;
 }
 
-// Crea los sliders de cada característica
+// Crea los sliders de cada característica usando datos dinámicos del CSV
 function createFeatureSliders() {
   const container = document.getElementById('features');
   if (!container) return;
 
-  const featuresArr = translations[currentLang].features;
+  // Usar características del CSV si están disponibles, sino usar traducciones por defecto
+  const featuresArr = csvFeatures.length > 0 ? csvFeatures : translations[currentLang].features;
+  
+  // Inicializar weights si no está inicializado
+  if (weights.length === 0) {
+    weights = Array(featuresArr.length).fill(2);
+    if (featuresArr.length > 0) {
+      weights[featuresArr.length - 1] = 0; // Último elemento (edad) a 0
+    }
+  }
+  
   container.innerHTML = featuresArr.map((feature, index) => {
-    if (index < featuresArr.length - 1) {
-      const label = sliderLabels[currentLang][2];
+    // Determinar si es el slider de edad (último elemento)
+    const isAgeSlider = (index === featuresArr.length - 1);
+    
+    if (!isAgeSlider) {
+      const label = sliderLabels[2]; // "Media"
       return `
         <div class="feature-item">
           <div class="feature-header">
@@ -198,7 +226,7 @@ function createFeatureSliders() {
         </div>
       `;
     } else {
-      const label = ageSliderLabels[currentLang][0];
+      const label = ageSliderLabels[0]; // "Indiferente"
       return `
         <div class="feature-item">
           <div class="feature-header">
@@ -221,44 +249,24 @@ function createFeatureSliders() {
   }).join('');
 }
 
-// Actualiza las traducciones de elementos
-function updateTranslations() {
+// Actualiza los textos de la interfaz
+function updateInterfaceTexts() {
   document.querySelectorAll('[data-translate]').forEach(el => {
     const key = el.dataset.translate;
-    if (translations[currentLang][key]) {
-      el.textContent = translations[currentLang][key];
+    if (texts[key]) {
+      el.textContent = texts[key];
     }
   });
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.classList.remove('active');
-    if (btn.textContent === currentLang.toUpperCase()) {
-      btn.classList.add('active');
-    }
-  });
-  const featureLabels = document.querySelectorAll('.feature-label');
-  if (featureLabels.length > 0) {
-    translations[currentLang].features.forEach((text, index) => {
-      if (featureLabels[index]) featureLabels[index].textContent = text;
-    });
-  }
+  
   const footerNote = document.querySelector('.footer div');
   const footerLink = document.querySelector('.footer a');
-  if (footerNote) footerNote.textContent = translations[currentLang].note;
+  if (footerNote) footerNote.textContent = texts.note;
   if (footerLink) {
-    footerLink.textContent = translations[currentLang].question;
+    footerLink.textContent = texts.question;
     footerLink.href = "https://educacion.bilateria.org/que-ia-me-conviene-comparativa-de-chatbots";
   }
 }
 
-// Cambio de idioma
-function changeLanguage(lang) {
-  currentLang = lang;
-  weights = Array(translations[currentLang].features.length).fill(2);
-  weights[translations[currentLang].features.length - 1] = 0;
-  updateTranslations();
-  createFeatureSliders();
-  updateScores();
-}
 
 // Función para obtener el color del slider basado en el valor
 function getSliderColor(value) {
@@ -275,16 +283,18 @@ function getSliderColor(value) {
 // Actualiza el valor de un deslizador
 function updateWeight(index, value) {
   let label;
-  if (index < translations[currentLang].features.length - 1) {
-    label = sliderLabels[currentLang][value];
+  const featuresLength = csvFeatures.length > 0 ? csvFeatures.length : 0;
+  
+  if (index < featuresLength - 1) {
+    label = sliderLabels[value];
   } else {
-    label = ageSliderLabels[currentLang][value];
+    label = ageSliderLabels[value];
   }
   weights[index] = parseInt(value);
   document.getElementById(`weight-${index}`).textContent = label;
 
   const sliderEl = document.getElementById(`slider-${index}`);
-  if (index < translations[currentLang].features.length - 1) {
+  if (index < featuresLength - 1) {
     sliderEl.style.setProperty("--slider-thumb-color", getSliderColor(value));
   } else {
     sliderEl.style.setProperty("--slider-thumb-color", "#3b82f6");
@@ -294,18 +304,19 @@ function updateWeight(index, value) {
 
 // Restablece todos los deslizadores a sus valores por defecto
 function resetWeights() {
-  weights = Array(translations[currentLang].features.length).fill(2);
-  weights[translations[currentLang].features.length - 1] = 0;
-  const labelsForCurrentLang = sliderLabels[currentLang];
-  const featuresArr = translations[currentLang].features;
+  const featuresLength = csvFeatures.length > 0 ? csvFeatures.length : 0;
+  weights = Array(featuresLength).fill(2);
+  if (featuresLength > 0) {
+    weights[featuresLength - 1] = 0; // Último elemento (edad) a 0
+  }
   document.querySelectorAll('.slider').forEach((slider, index) => {
-    if (index < featuresArr.length - 1) {
+    if (index < featuresLength - 1) {
       slider.value = 2;
-      document.getElementById(`weight-${index}`).textContent = labelsForCurrentLang[2];
+      document.getElementById(`weight-${index}`).textContent = sliderLabels[2]; // "Media"
       slider.style.setProperty("--slider-thumb-color", getSliderColor(2));
     } else {
       slider.value = 0;
-      document.getElementById(`weight-${index}`).textContent = ageSliderLabels[currentLang][0];
+      document.getElementById(`weight-${index}`).textContent = ageSliderLabels[0]; // "Indiferente"
       slider.style.setProperty("--slider-thumb-color", "#3b82f6");
     }
   });
@@ -323,25 +334,51 @@ function getScoreColor(percentage) {
 
 // Calcula la puntuación total para cada IA
 function updateScores() {
+  if (ias.length === 0 || Object.keys(capabilities).length === 0) {
+    console.warn('No hay datos de chatbots disponibles');
+    return;
+  }
+  
+  
   const scores = ias.map(ia => {
+    if (!capabilities[ia]) {
+      console.warn(`No hay datos para el chatbot: ${ia}`);
+      return { ia, score: 0 };
+    }
+    
     let baseScore = 0;
     for (let i = 0; i < weights.length - 1; i++) {
-      baseScore += capabilities[ia][i] * weights[i];
+      if (capabilities[ia][i] !== undefined) {
+        baseScore += capabilities[ia][i] * weights[i];
+      }
     }
+    
     if (failsMandatoryRequirement(capabilities[ia])) {
       return { ia, score: 0 };
     }
-    let bonus;
-    if (weights[weights.length - 1] === 0) {
-      bonus = (capabilities[ia][15] < 18 ? 1 : 0);
-    } else if (weights[weights.length - 1] === 1) {
-      bonus = (capabilities[ia][15] < 18 ? 1 : null);
+    
+    // Manejo del bonus por edad - el último elemento ya está convertido a 0/1
+    let ageBonus = 0;
+    const ageIndex = capabilities[ia].length - 1;
+    const ageWeightIndex = weights.length - 1;
+    const isUnder18 = capabilities[ia][ageIndex] === 1; // Ya convertido: 1 = <18, 0 = >=18
+    
+    if (weights[ageWeightIndex] === 0) {
+      // Indiferente - dar bonus si es apto para menores
+      ageBonus = isUnder18 ? 1 : 0;
+    } else if (weights[ageWeightIndex] === 1) {
+      // Solo menores - solo dar bonus si es <18, sino descalificar
+      if (isUnder18) {
+        ageBonus = 1;
+      } else {
+        baseScore = 0; // Descalificar completamente
+        ageBonus = 0;
+      }
     }
-    if (bonus === null) {
-      baseScore = 0;
-    } else {
-      baseScore += bonus;
-    }
+    
+    baseScore += ageBonus;
+    
+    
     return { ia, score: Math.round(baseScore) };
   }).sort((a, b) => b.score - a.score);
 
@@ -349,7 +386,17 @@ function updateScores() {
   if (!container) return;
 
   container.innerHTML = scores.map(({ ia, score }, index) => {
-    const maxPossibleScore = weights.reduce((sum, weight, i) => sum + (i < weights.length - 1 ? weight * 1 : 0), 0) + 1;
+    // Calcular puntuación máxima posible
+    let maxPossibleScore = 0;
+    
+    // Sumar pesos de todas las características (excepto edad)
+    for (let i = 0; i < weights.length - 1; i++) {
+      maxPossibleScore += weights[i] * 1; // Cada característica puede valer máximo 1
+    }
+    
+    // Añadir el bonus de edad (siempre máximo 1)
+    maxPossibleScore += 1;
+    
     const percentage = maxPossibleScore > 0 ? Math.round((score / maxPossibleScore) * 100) : 0;
     const colorClass = getScoreColor(percentage);
     
@@ -371,7 +418,7 @@ function updateScores() {
       ratingIndex = 0; // Básico
       ratingClass = "rating-poor";
     }
-    const ratingText = ratings[currentLang][ratingIndex];
+    const ratingText = ratings[ratingIndex];
     
     return `
       <div class="result-item">
@@ -389,13 +436,59 @@ function updateScores() {
   }).join('');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  updateTranslations();
+// Función de inicialización que carga datos y configura la interfaz
+async function initializeApp() {
+  console.log('Inicializando aplicación...');
+  
+  // Cargar datos desde CSV
+  const csvLoaded = await loadDataFromCSV();
+  if (csvLoaded) {
+    console.log('Datos cargados desde CSV exitosamente');
+  } else {
+    console.log('Usando datos por defecto como fallback');
+  }
+  
+  // Inicializar weights basado en los datos cargados
+  const featuresLength = csvFeatures.length > 0 ? csvFeatures.length : 0;
+  weights = Array(featuresLength).fill(2);
+  if (featuresLength > 0) {
+    weights[featuresLength - 1] = 0; // Último elemento (edad) a 0
+  }
+  
+  // Configurar interfaz
+  updateInterfaceTexts();
   createFeatureSliders();
   updateScores();
-});
+  
+  console.log('Aplicación inicializada con', ias.length, 'chatbots y', featuresLength, 'características');
+}
+
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', initializeApp);
+
+// Función para recargar datos desde el CSV (útil para testing o actualizaciones manuales)
+async function reloadDataFromCSV() {
+  console.log('Recargando datos desde CSV...');
+  const csvLoaded = await loadDataFromCSV();
+  
+  if (csvLoaded) {
+    console.log('Datos recargados exitosamente');
+    // Reinicializar la interfaz con los nuevos datos
+    const featuresLength = csvFeatures.length > 0 ? csvFeatures.length : translations[currentLang].features.length;
+    weights = Array(featuresLength).fill(2);
+    if (featuresLength > 0) {
+      weights[featuresLength - 1] = 0;
+    }
+    
+    createFeatureSliders();
+    updateScores();
+    console.log('Interfaz actualizada con', ias.length, 'chatbots y', featuresLength, 'características');
+  } else {
+    console.log('Error al recargar datos, manteniendo datos actuales');
+  }
+}
 
 // Hacer accesibles las funciones globalmente
 window.resetWeights = resetWeights;
-window.changeLanguage = changeLanguage;
 window.updateWeight = updateWeight;
+window.reloadDataFromCSV = reloadDataFromCSV;
